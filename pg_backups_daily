@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# how many daily backups to keep
+count=6
+cd /home/mweber/.backup/
+
+# lis the databases to backup
+for db in percival_production
+do
+  [ -f ${db}_daily_${count}.tar.gz ] && rm ${db}_daily_${count}.tar.gz
+  for ((i=count; i>1 ;i--));
+  do
+    j=$(($i - 1))
+    [ -f ${db}_daily_${j}.tar.gz ] && mv ${db}_daily_${j}.tar.gz ${db}_daily_${i}.tar.gz
+  done
+  #pg_dump $db > ${db}.sql  # skip if hourly process is creating the backup file
+  tar -czf ${db}_daily_1.tar.gz ${db}.sql 
+done
+    

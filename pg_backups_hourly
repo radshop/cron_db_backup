@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# how many hourly backups to keep
+count=6
+cd /home/mweber/.backup/
+
+# lis the databases to backup
+for db in percival_production
+do
+  [ -f ${db}_hourly_${count}.tar.gz ] && rm ${db}_hourly_${count}.tar.gz
+  for ((i=count; i>1 ;i--));
+  do
+    j=$(($i - 1))
+    [ -f ${db}_hourly_${j}.tar.gz ] && mv ${db}_hourly_${j}.tar.gz ${db}_hourly_${i}.tar.gz
+  done
+  pg_dump $db > ${db}.sql
+  tar -czf ${db}_hourly_1.tar.gz ${db}.sql 
+done
